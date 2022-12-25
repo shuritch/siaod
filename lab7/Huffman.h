@@ -1,8 +1,11 @@
 #ifndef HUFF
 #define HUFF
-
-#pragma once
-#include "libs.h"
+#define MAX_TREE_HT 256 
+#include <map>
+#include <iostream>
+#include <string>
+#include <queue>
+using namespace std;
 
 struct MinHeapNode
 {
@@ -29,15 +32,7 @@ map<char, string> codes;
 map<char, int> freq;
 priority_queue<MinHeapNode*, vector<MinHeapNode*>, compare> minHeap;
 
-void printCodes(struct MinHeapNode* root, string str)
-{
-    if (!root)
-        return;
-    if (root->data != '$')
-        cout << root->data << ": " << str << "\n";
-    printCodes(root->left, str + "0");
-    printCodes(root->right, str + "1");
-}
+
 void storeCodes(struct MinHeapNode* root, string str)
 {
     if (root == NULL)
@@ -92,19 +87,32 @@ string decode_file(struct MinHeapNode* root, string s)
 }
 
 void huffman(string test) {
+    float avLength = 0, disp = 0;
     string encodedString, decodedString;
     calcFreq(test, test.length());
     HuffmanCodes(test.length());
 
-    cout << "Character With there Frequencies:\n";
-    for (auto v = codes.begin(); v != codes.end(); v++)
-        cout << v->first << ' ' << v->second << endl;
-
     for (auto i : test) encodedString += codes[i];
-
-    cout << "\nEncoded Huffman data:\n" << encodedString << endl;
-
     decodedString = decode_file(minHeap.top(), encodedString);
+
+    cout << "HUFFMAN Character With codes:\n";
+    cout << "Letter\tCode\tCount\tposibility" << endl;
+    
+    for (auto v = codes.begin(); v != codes.end(); v++) {
+        float pos = (float)freq[v->first] / (float)test.size();
+        cout << v->first << "\t" << v->second << "\t" << freq[v->first] << "\t" << pos * 100 << endl;
+        avLength += v->second.length() * pos;
+    }
+
+    for (auto v = codes.begin(); v != codes.end(); v++) {
+        float pos = (float)freq[v->first] / (float)codes.size();
+        disp += pos * (v->second.length() - avLength) * (v->second.length() - avLength);
+    }
+
+    cout << "Average code length: " << avLength << endl;
+    cout << "Dispersion: " << disp << endl;
+    cout << "%: " << (float)test.length() * 8 / (float)encodedString.length()  << endl;
+    cout << "\nEncoded Huffman data:\n" << encodedString << endl;
     cout << "\nDecoded Huffman Data:\n" << decodedString << endl;
 }
 
