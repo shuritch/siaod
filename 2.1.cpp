@@ -131,14 +131,16 @@ public:
         std::streamoff p = 0;
         fin.seekg(p);
         vector<int> numbers;
+        int max = INT_MIN;
         while (!fin.eof()) {
             int number;
             fin >> number;
             numbers.push_back(number);
+            if (max < number) max = number;
         }
         for (int& number : numbers) {
-            number /= numbers.size();
-            fout2 << number << endl;
+            number *= max;
+            fout2 << number << ' ';
         }
         if (!fout2.good()) cout << "Error on new file closing" << endl;
         fout2.close();
